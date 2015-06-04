@@ -10,6 +10,7 @@ import UIKit
 import ImageIO
 import MobileCoreServices
 import AVFoundation
+import QuartzCore
 
 public typealias TimePoint = CMTime
 
@@ -24,7 +25,7 @@ public class Regift: NSObject {
     // The frames are spaced evenly over the video, and each has the same duration.
     // loopCount is the number of times the GIF will repeat. Defaults to 0, which means repeat infinitely.
     // delayTime is the amount of time for each frame in the GIF.
-    public class func createGIFFromURL(URL: NSURL, withFrameCount frameCount: Int, delayTime: Float, loopCount: Int = 0) -> NSURL? {
+    public class func createGIFFromURL(URL: NSURL, size: CGSize , withFrameCount frameCount: Int, delayTime: Float, loopCount: Int = 0) -> NSURL? {
         let fileProperties = [kCGImagePropertyGIFDictionary as String: [
             kCGImagePropertyGIFLoopCount as String: loopCount
         ]];
@@ -34,7 +35,7 @@ public class Regift: NSObject {
         ]];
         
         let asset = AVURLAsset(URL: URL, options: [NSObject: AnyObject]())
-        
+
         // The total length of the movie, in seconds.
         let movieLength = Float(asset.duration.value) / Float(asset.duration.timescale)
         
@@ -51,12 +52,18 @@ public class Regift: NSObject {
             timePoints.append(time)
         }
         
-        let gifURL = Regift.createGIFForTimePoints(timePoints, fromURL: URL, fileProperties: fileProperties, frameProperties: frameProperties, frameCount: frameCount)
+        let gifURL = Regift.createGIFForTimePoints(timePoints, fromURL: URL, size: size , fileProperties: fileProperties, frameProperties: frameProperties, frameCount: frameCount)
         
         return gifURL
     }
     
-    public class func createGIFForTimePoints(timePoints: [TimePoint], fromURL URL: NSURL, fileProperties: [String: AnyObject], frameProperties: [String: AnyObject], frameCount: Int) -> NSURL? {
+    public class func createGIFFromURL(URL: NSURL, withFrameCount frameCount: Int, delayTime: Float, loopCount: Int = 0) -> NSURL? {
+        let asset = AVURLAsset(URL: URL, options: [NSObject: AnyObject]())
+        let size = self.getVideoSize(asset)
+        return self.createGIFFromURL(URL, size: size, withFrameCount: frameCount, delayTime: delayTime, loopCount: loopCount)
+    }
+    
+    public class func createGIFForTimePoints(timePoints: [TimePoint], fromURL URL: NSURL, size: CGSize, fileProperties: [String: AnyObject], frameProperties: [String: AnyObject], frameCount: Int) -> NSURL? {
         let temporaryFile = NSTemporaryDirectory().stringByAppendingPathComponent(Constants.FileName)
         let fileURL = NSURL.fileURLWithPath(temporaryFile, isDirectory: false)
         
@@ -77,8 +84,8 @@ public class Regift: NSObject {
         
         var error: NSError?
         for time in timePoints {
-            let imageRef = generator.copyCGImageAtTime(time, actualTime: nil, error: &error)
-            
+            var imageRef = generator.copyCGImageAtTime(time, actualTime: nil, error: &error)
+            imageRef = self.resize(imageRef, size: size)
             if let error = error {
                 return nil
             }
