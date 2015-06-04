@@ -29,9 +29,9 @@ public class Regift: NSObject {
             kCGImagePropertyGIFLoopCount as String: loopCount
         ]
         
-        let frameProperties = [
+        let frameProperties = [kCGImagePropertyGIFDictionary as String: [
             kCGImagePropertyGIFDelayTime as String: delayTime
-        ]
+        ]];
         
         let asset = AVURLAsset(URL: URL, options: [NSObject: AnyObject]())
         
