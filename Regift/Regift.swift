@@ -31,6 +31,13 @@ public class Regift: NSObject {
         return self.createGIFFromURL(URL, size: size, withFrameCount: frameCount, delayTime: delayTime, loopCount: loopCount)
     }
     
+    public class func createGIFFromURL(URL: NSURL, scale: CGFloat, withFrameCount frameCount: Int, delayTime: Float, loopCount: Int = 0) -> NSURL? {
+        let asset = AVURLAsset(URL: URL, options: [NSObject: AnyObject]())
+        let oldSize = self.getVideoSize(asset)
+        let newSize = CGSizeMake(oldSize.width * scale, oldSize.height * scale)
+        return self.createGIFFromURL(URL, size: newSize, withFrameCount: frameCount, delayTime: delayTime, loopCount: loopCount)
+    }
+    
     public class func createGIFFromURL(URL: NSURL, size: CGSize , withFrameCount frameCount: Int, delayTime: Float, loopCount: Int = 0) -> NSURL? {
         let fileProperties = [kCGImagePropertyGIFDictionary as String: [
             kCGImagePropertyGIFLoopCount as String: loopCount
