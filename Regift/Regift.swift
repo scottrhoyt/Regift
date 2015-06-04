@@ -25,6 +25,12 @@ public class Regift: NSObject {
     // The frames are spaced evenly over the video, and each has the same duration.
     // loopCount is the number of times the GIF will repeat. Defaults to 0, which means repeat infinitely.
     // delayTime is the amount of time for each frame in the GIF.
+    public class func createGIFFromURL(URL: NSURL, withFrameCount frameCount: Int, delayTime: Float, loopCount: Int = 0) -> NSURL? {
+        let asset = AVURLAsset(URL: URL, options: [NSObject: AnyObject]())
+        let size = self.getVideoSize(asset)
+        return self.createGIFFromURL(URL, size: size, withFrameCount: frameCount, delayTime: delayTime, loopCount: loopCount)
+    }
+    
     public class func createGIFFromURL(URL: NSURL, size: CGSize , withFrameCount frameCount: Int, delayTime: Float, loopCount: Int = 0) -> NSURL? {
         let fileProperties = [kCGImagePropertyGIFDictionary as String: [
             kCGImagePropertyGIFLoopCount as String: loopCount
@@ -55,12 +61,6 @@ public class Regift: NSObject {
         let gifURL = Regift.createGIFForTimePoints(timePoints, fromURL: URL, size: size , fileProperties: fileProperties, frameProperties: frameProperties, frameCount: frameCount)
         
         return gifURL
-    }
-    
-    public class func createGIFFromURL(URL: NSURL, withFrameCount frameCount: Int, delayTime: Float, loopCount: Int = 0) -> NSURL? {
-        let asset = AVURLAsset(URL: URL, options: [NSObject: AnyObject]())
-        let size = self.getVideoSize(asset)
-        return self.createGIFFromURL(URL, size: size, withFrameCount: frameCount, delayTime: delayTime, loopCount: loopCount)
     }
     
     public class func createGIFForTimePoints(timePoints: [TimePoint], fromURL URL: NSURL, size: CGSize, fileProperties: [String: AnyObject], frameProperties: [String: AnyObject], frameCount: Int) -> NSURL? {
