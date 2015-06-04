@@ -94,4 +94,40 @@ public class Regift: NSObject {
         
         return fileURL
     }
+    
+    class func resize(image: CGImageRef!, size: CGSize!) -> CGImageRef! {
+        let origSize = CGSizeMake(CGFloat(CGImageGetWidth(image)), CGFloat(CGImageGetHeight(image)))
+        
+        if CGSizeEqualToSize(origSize, size) {
+            return image
+        }
+
+        let bitsPerComponent = CGImageGetBitsPerComponent(image)
+        let bytesPerRow = CGImageGetBytesPerRow(image)
+        let colorSpace = CGImageGetColorSpace(image)
+        let bitmapInfo = CGImageGetBitmapInfo(image)
+        
+        let context = CGBitmapContextCreate(nil, Int(size.width), Int(size.height), bitsPerComponent, bytesPerRow, colorSpace, bitmapInfo)
+        
+        CGContextSetInterpolationQuality(context, kCGInterpolationHigh)
+        
+        CGContextDrawImage(context, CGRect(origin: CGPointZero, size: size), image)
+        
+        let scaledImage = CGBitmapContextCreateImage(context)
+        
+        return scaledImage
+    }
+    
+    class func getVideoSize(videoAsset: AVURLAsset!) -> CGSize! {
+        var size = CGSizeMake(0, 0);
+        let videoTracks = videoAsset.tracksWithMediaType(AVMediaTypeVideo) as! Array<AVAssetTrack>;
+        
+        if !videoTracks.isEmpty {
+            let videoTrack = videoTracks[0]
+            size = CGSizeApplyAffineTransform(videoTrack.naturalSize, videoTrack.preferredTransform)
+            size = CGSizeMake(abs(size.width), abs(size.height))
+        }
+        
+        return size
+    }
 }
